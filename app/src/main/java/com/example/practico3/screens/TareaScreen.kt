@@ -2,8 +2,8 @@ package com.example.practico3.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -16,8 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.practico3.data.entities.Tarea
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,14 +45,32 @@ fun TareaScreen() {
                 title = "Hacer práctico",
                 description = "Terminar Compose",
                 tag = "Universidad",
-                priority = "Alta"
+                priority = "Alta",
+                completed = false
             ),
 
             Tarea(
                 title = "Comprar comida",
                 description = "Ir al mercado",
                 tag = "Personal",
-                priority = "Media"
+                priority = "Media",
+                completed = true
+            ),
+
+            Tarea(
+                title = "Estudiar Room",
+                description = "Ver relaciones many to many",
+                tag = "Android",
+                priority = "Alta",
+                completed = false
+            ),
+
+            Tarea(
+                title = "Enviar informe",
+                description = "Mandar PDF al docente",
+                tag = "Trabajo",
+                priority = "Baja",
+                completed = true
             )
         )
     }
@@ -64,7 +80,7 @@ fun TareaScreen() {
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
-    ){
+    ) {
 
         Text(
             text = "Lista de tareas",
@@ -93,16 +109,16 @@ fun TareaScreen() {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
 
-            Button(onClick = {}) {
+            OutlinedButton(onClick = {}) {
                 Text("Estado")
             }
 
-            Button(onClick = {}) {
+            OutlinedButton(onClick = {}) {
                 Text("Prioridad")
             }
 
-            Button(onClick = {}) {
-                Text("Etiqueta")
+            OutlinedButton(onClick = {}) {
+                Text("Etiquetas")
             }
         }
 
@@ -225,144 +241,141 @@ fun TareaScreen() {
             Text("Crear tarea")
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        // LISTA
+        // LISTA DE TAREAS
 
-        LazyColumn {
+        tareas.forEach { tarea ->
 
-            items(tareas) { tarea ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
 
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 6.dp),
-                    shape = RoundedCornerShape(16.dp)
+                Column(
+                    modifier = Modifier.padding(16.dp)
                 ) {
 
-                    Column(
-                        modifier = Modifier.padding(16.dp)
+                    // TITULO + PRIORIDAD
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
 
-                        // TITULO + PRIORIDAD
+                        Box(
+                            modifier = Modifier
+                                .size(14.dp)
+                                .background(
+                                    when(tarea.priority) {
 
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
+                                        "Alta" -> Color.Red
+                                        "Media" -> Color.Yellow
+                                        else -> Color.Green
+                                    }
+                                )
+                        )
+
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Text(
+                            text = tarea.title,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(tarea.description)
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text("Etiqueta: ${tarea.tag}")
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text("Prioridad: ${tarea.priority}")
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text("Fecha: 20/05/2026")
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // CHECK COMPLETADO
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Checkbox(
+                            checked = tarea.completed,
+                            onCheckedChange = {}
+                        )
+
+                        Text(
+                            if(tarea.completed)
+                                "Completada"
+                            else
+                                "Pendiente"
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // BOTONES
+
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+
+                        FilledTonalButton(
+                            onClick = {}
                         ) {
 
-                            Box(
-                                modifier = Modifier
-                                    .size(14.dp)
-                                    .background(
-                                        when(tarea.priority) {
-
-                                            "Alta" -> Color.Red
-                                            "Media" -> Color.Yellow
-                                            else -> Color.Green
-                                        }
-                                    )
+                            Icon(
+                                Icons.Default.Edit,
+                                contentDescription = null
                             )
 
-                            Spacer(modifier = Modifier.width(8.dp))
-
-                            Text(
-                                text = tarea.title,
-                                style = MaterialTheme.typography.titleLarge
+                            Spacer(
+                                modifier = Modifier.width(4.dp)
                             )
+
+                            Text("Editar")
                         }
 
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(tarea.description)
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text("Etiqueta: ${tarea.tag}")
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Text("Prioridad: ${tarea.priority}")
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Text("Fecha: 20/05/2026")
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        // CHECK COMPLETADO
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
+                        FilledTonalButton(
+                            onClick = {}
                         ) {
 
-                            Checkbox(
-                                checked = tarea.completed,
-                                onCheckedChange = {}
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = null
                             )
 
-                            Text(
-                                if(tarea.completed)
-                                    "Completada"
-                                else
-                                    "Pendiente"
+                            Spacer(
+                                modifier = Modifier.width(4.dp)
                             )
+
+                            Text("Eliminar")
                         }
 
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        // BOTONES
-
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        FilledTonalButton(
+                            onClick = {}
                         ) {
 
-                            FilledTonalButton(
-                                onClick = {}
-                            ) {
+                            Icon(
+                                Icons.Default.Info,
+                                contentDescription = null
+                            )
 
-                                Icon(
-                                    Icons.Default.Edit,
-                                    contentDescription = null
-                                )
+                            Spacer(
+                                modifier = Modifier.width(4.dp)
+                            )
 
-                                Spacer(
-                                    modifier = Modifier.width(4.dp)
-                                )
-
-                                Text("Editar")
-                            }
-
-                            FilledTonalButton(
-                                onClick = {}
-                            ) {
-
-                                Icon(
-                                    Icons.Default.Delete,
-                                    contentDescription = null
-                                )
-
-                                Spacer(
-                                    modifier = Modifier.width(4.dp)
-                                )
-
-                                Text("Eliminar")
-                            }
-
-                            FilledTonalButton(
-                                onClick = {}
-                            ) {
-
-                                Icon(
-                                    Icons.Default.Info,
-                                    contentDescription = null
-                                )
-
-                                Spacer(
-                                    modifier = Modifier.width(4.dp)
-                                )
-
-                                Text("Detalles")
-                            }
+                            Text("Detalles")
                         }
                     }
                 }
