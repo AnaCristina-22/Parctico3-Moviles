@@ -3,8 +3,8 @@ package com.example.practico3.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -21,9 +21,27 @@ import com.example.practico3.data.entities.Tarea
 @Composable
 fun TareaScreen() {
 
+    val verdeAgua = Color(0xFFA8E6CF)
+
+    val verdeSuave = Color(0xFFDCEDC1)
+
+    val amarilloPastel = Color(0xFFFFF3B0)
+
+    val crema = Color(0xFFFFFBF2)
+
+    val verdeOscuro = Color(0xFF4E7C59)
+
+    // CAMPOS
+
     var titulo by remember { mutableStateOf("") }
+
     var descripcion by remember { mutableStateOf("") }
+
     var etiqueta by remember { mutableStateOf("") }
+
+    var busqueda by remember { mutableStateOf("") }
+
+    // DROPDOWN
 
     var expanded by remember { mutableStateOf(false) }
 
@@ -36,6 +54,8 @@ fun TareaScreen() {
     var prioridadSeleccionada by remember {
         mutableStateOf("Media")
     }
+
+    // TAREAS DEMO
 
     val tareas = remember {
 
@@ -75,16 +95,22 @@ fun TareaScreen() {
         )
     }
 
+    // PANTALLA
+
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(crema)
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
 
+        // TITULO
+
         Text(
             text = "Lista de tareas",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
+            color = verdeOscuro
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -92,8 +118,10 @@ fun TareaScreen() {
         // BUSCADOR
 
         OutlinedTextField(
-            value = "",
-            onValueChange = {},
+            value = busqueda,
+            onValueChange = {
+                busqueda = it
+            },
             label = {
                 Text("Buscar tarea")
             },
@@ -109,15 +137,30 @@ fun TareaScreen() {
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
 
-            OutlinedButton(onClick = {}) {
+            OutlinedButton(
+                onClick = {},
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = amarilloPastel
+                )
+            ) {
                 Text("Estado")
             }
 
-            OutlinedButton(onClick = {}) {
+            OutlinedButton(
+                onClick = {},
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = amarilloPastel
+                )
+            ) {
                 Text("Prioridad")
             }
 
-            OutlinedButton(onClick = {}) {
+            OutlinedButton(
+                onClick = {},
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = amarilloPastel
+                )
+            ) {
                 Text("Etiquetas")
             }
         }
@@ -128,7 +171,8 @@ fun TareaScreen() {
 
         Text(
             text = "Nueva tarea",
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            color = verdeOscuro
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -209,6 +253,7 @@ fun TareaScreen() {
                         onClick = {
 
                             prioridadSeleccionada = prioridad
+
                             expanded = false
                         }
                     )
@@ -235,7 +280,11 @@ fun TareaScreen() {
 
         Button(
             onClick = {},
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = verdeAgua,
+                contentColor = Color.Black
+            )
         ) {
 
             Text("Crear tarea")
@@ -251,7 +300,10 @@ fun TareaScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 6.dp),
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = verdeSuave
+                )
             ) {
 
                 Column(
@@ -268,11 +320,13 @@ fun TareaScreen() {
                             modifier = Modifier
                                 .size(14.dp)
                                 .background(
-                                    when(tarea.priority) {
+                                    when (tarea.priority) {
 
-                                        "Alta" -> Color.Red
-                                        "Media" -> Color.Yellow
-                                        else -> Color.Green
+                                        "Alta" -> Color(0xFFFFB4A2)
+
+                                        "Media" -> amarilloPastel
+
+                                        else -> verdeAgua
                                     }
                                 )
                         )
@@ -281,7 +335,8 @@ fun TareaScreen() {
 
                         Text(
                             text = tarea.title,
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.titleLarge,
+                            color = verdeOscuro
                         )
                     }
 
@@ -315,7 +370,7 @@ fun TareaScreen() {
                         )
 
                         Text(
-                            if(tarea.completed)
+                            if (tarea.completed)
                                 "Completada"
                             else
                                 "Pendiente"
@@ -331,7 +386,10 @@ fun TareaScreen() {
                     ) {
 
                         FilledTonalButton(
-                            onClick = {}
+                            onClick = {},
+                            colors = ButtonDefaults.filledTonalButtonColors(
+                                containerColor = amarilloPastel
+                            )
                         ) {
 
                             Icon(
@@ -347,7 +405,10 @@ fun TareaScreen() {
                         }
 
                         FilledTonalButton(
-                            onClick = {}
+                            onClick = {},
+                            colors = ButtonDefaults.filledTonalButtonColors(
+                                containerColor = amarilloPastel
+                            )
                         ) {
 
                             Icon(
@@ -363,7 +424,10 @@ fun TareaScreen() {
                         }
 
                         FilledTonalButton(
-                            onClick = {}
+                            onClick = {},
+                            colors = ButtonDefaults.filledTonalButtonColors(
+                                containerColor = amarilloPastel
+                            )
                         ) {
 
                             Icon(
