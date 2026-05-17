@@ -3,21 +3,56 @@ package com.example.practico3
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.navigation.NavHost
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.practico3.data.db.AppDatabase
+import com.example.practico3.repository.TareaRepository
+import com.example.practico3.screens.EditarScreen
+import com.example.practico3.screens.NuevaTareaScreen
 import com.example.practico3.screens.TareaScreen
 import com.example.practico3.ui.theme.Practico3Theme
+import com.example.practico3.viewmodel.TareaViewModel
+import com.example.practico3.screens.TagsScreen
 
 class MainActivity : ComponentActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
 
-        super.onCreate(savedInstanceState)
+            val db = AppDatabase.getDatabase(this)
+            val repo = TareaRepository(db.tareaDao())
+            val viewModel = TareaViewModel(repo)
 
-        setContent {
+            setContent {
+                Practico3Theme {
 
-            Practico3Theme {
+                    val navController = rememberNavController()
 
-                TareaScreen()
+                    NavHost(
+                        navController = navController,
+                        startDestination = "lista"
+                    ) {
+
+                        composable("lista") {
+                            TareaScreen(viewModel, navController)
+                        }
+
+                        composable("nueva") {
+                            NuevaTareaScreen(viewModel, navController)
+                        }
+
+                        composable("editar") {
+                            EditarScreen()
+                        }
+
+                        composable("crearTag") {
+                            TagsScreen(viewModel)
+                        }
+
+                    }
+                }
             }
         }
-    }
 }

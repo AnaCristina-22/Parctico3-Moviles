@@ -6,11 +6,14 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.practico3.Generated
 import com.example.practico3.data.daos.TareaDao
+import com.example.practico3.data.entities.Tag
 import com.example.practico3.data.entities.Tarea
+import com.example.practico3.data.entities.TareaTagCrossRef
 
 @Database(
-    entities = [Tarea::class],
-    version = 1
+    entities = [Tarea::class, Tag::class, TareaTagCrossRef::class],
+    version = 1,
+    exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 

@@ -1,12 +1,22 @@
 package com.example.practico3.repository
 
-import com.example.practico3.Generated
 import com.example.practico3.data.daos.TareaDao
+import com.example.practico3.data.entities.Tag
 import com.example.practico3.data.entities.Tarea
+import com.example.practico3.data.entities.TareaConTags
+import com.example.practico3.data.entities.TareaTagCrossRef
+import kotlinx.coroutines.flow.Flow
 
 class TareaRepository(
     private val dao: TareaDao
 ) {
+
+    // Cambiado a función para exponer el Flow correctamente
+    fun getAllTareas(): Flow<List<Tarea>> = dao.getAll()
+
+    fun getTareasConTags(): Flow<List<TareaConTags>> = dao.getTareasConTags()
+
+    fun getTags(): Flow<List<Tag>> = dao.getAllTags()
 
     suspend fun insert(tarea: Tarea) {
         dao.insert(tarea)
@@ -20,7 +30,21 @@ class TareaRepository(
         dao.delete(tarea)
     }
 
-    suspend fun getAll(): List<Tarea> {
-        return dao.getAll()
+    suspend fun getById(id: Int): Tarea = dao.getById(id)
+
+    suspend fun insertTag(tag: Tag) {
+        dao.insertTag(tag)
+    }
+
+    suspend fun insertTareaConTags(tarea: Tarea, tags: List<Tag>) {
+        val tareaId = dao.insertTarea(tarea)
+        tags.forEach { tag ->
+            dao.insertCrossRef(
+                TareaTagCrossRef(
+                    tareaId = tareaId.toInt(),
+                    tagId = tag.id
+                )
+            )
+        }
     }
 }
