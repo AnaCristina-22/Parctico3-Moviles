@@ -52,4 +52,7 @@ interface TareaDao {
 
     @Query("SELECT * FROM tags")
     fun getAllTags(): Flow<List<Tag>>
+
+    @Delete
+    suspend fun deleteTag(tag: Tag)
 }

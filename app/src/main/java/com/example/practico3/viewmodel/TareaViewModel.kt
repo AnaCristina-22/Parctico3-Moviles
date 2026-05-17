@@ -102,4 +102,14 @@ class TareaViewModel(
             }
         }
     }
+
+    fun deleteTag(tag: Tag) {
+        viewModelScope.launch {
+            try {
+                repository.deleteTag(tag)
+            } catch (e: Exception) {
+                _state.value = TareaState.Error(e.message ?: "Error al eliminar etiqueta")
+            }
+        }
+    }
 }

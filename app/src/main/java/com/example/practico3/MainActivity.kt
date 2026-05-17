@@ -4,9 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.NavHost
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.practico3.data.db.AppDatabase
 import com.example.practico3.repository.TareaRepository
 import com.example.practico3.screens.EditarScreen
@@ -43,8 +45,16 @@ class MainActivity : ComponentActivity() {
                             NuevaTareaScreen(viewModel, navController)
                         }
 
-                        composable("editar") {
-                            EditarScreen()
+                        composable(
+                            route = "editar/{tareaId}",
+                            arguments = listOf(navArgument("tareaId") { type = NavType.IntType })
+                        ) { backStackEntry ->
+                            val tareaId = backStackEntry.arguments?.getInt("tareaId") ?: 0
+                            EditarScreen(
+                                tareaId = tareaId,
+                                viewModel = viewModel,
+                                navController = navController
+                            )
                         }
 
                         composable("crearTag") {

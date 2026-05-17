@@ -47,4 +47,8 @@ class TareaRepository(
             )
         }
     }
+
+    suspend fun deleteTag(tag: Tag) {
+        dao.deleteTag(tag)
+    }
 }
