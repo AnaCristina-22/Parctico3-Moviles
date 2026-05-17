@@ -51,4 +51,15 @@ class TareaRepository(
     suspend fun deleteTag(tag: Tag) {
         dao.deleteTag(tag)
     }
+
+    suspend fun actualizarTareaConTags(tarea: Tarea, tags: List<Tag>) {
+        dao.update(tarea)
+        dao.deleteCrossRefsPorTarea(tarea.id)
+        tags.forEach { tag ->
+            dao.insertCrossRef(TareaTagCrossRef(tareaId = tarea.id, tagId = tag.id))
+        }
+    }
+
+    suspend fun getTareaConTagsById(id: Int): TareaConTags = dao.getTareaConTagsById(id)
+
 }

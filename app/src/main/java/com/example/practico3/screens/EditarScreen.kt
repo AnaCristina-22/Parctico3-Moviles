@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.practico3.data.entities.Tag
 import com.example.practico3.data.entities.Tarea
 import com.example.practico3.viewmodel.TareaViewModel
 
@@ -24,23 +25,25 @@ fun EditarScreen(
     var fechaVencimiento by remember { mutableStateOf("") }
     var completada by remember { mutableStateOf(false) }
 
-    // Estados para el Dropdown de prioridad
     var expanded by remember { mutableStateOf(false) }
     val prioridades = listOf("Alta", "Media", "Baja")
     var prioridadSeleccionada by remember { mutableStateOf("Media") }
 
-    // Guardamos una referencia de la tarea original para no perder su ID ni su fecha de creación
     var tareaOriginal by remember { mutableStateOf<Tarea?>(null) }
 
-    // LaunchedEffect carga los datos existentes de la tarea por defecto al entrar a la pantalla
+    // Listas reactivas para gestionar el cambio de etiquetas
+    val todosLosTags by viewModel.tags.collectAsState(initial = emptyList())
+    var tagsSeleccionados by remember { mutableStateOf(setOf<Tag>()) }
+
     LaunchedEffect(tareaId) {
-        viewModel.getTareaById(tareaId) { tarea ->
-            tareaOriginal = tarea
-            titulo = tarea.title
-            descripcion = tarea.description
-            prioridadSeleccionada = tarea.priority
-            completada = tarea.completed
-            fechaVencimiento = tarea.dueDate // Recuerda tener 'dueDate' añadido en tu data class Tarea
+        viewModel.getTareaConTagsById(tareaId) { item ->
+            tareaOriginal = item.tarea
+            titulo = item.tarea.title
+            descripcion = item.tarea.description
+            prioridadSeleccionada = item.tarea.priority
+            completada = item.tarea.completed
+            fechaVencimiento = item.tarea.dueDate
+            tagsSeleccionados = item.tags.toSet() // Precarga los tags que ya tenía asignados
         }
     }
 
@@ -50,82 +53,65 @@ fun EditarScreen(
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-        Text(
-            text = "Editar Tarea",
-            style = MaterialTheme.typography.headlineMedium
-        )
+        Text("Editar Tarea", style = MaterialTheme.typography.headlineMedium)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Campo Título
-        OutlinedTextField(
-            value = titulo,
-            onValueChange = { titulo = it },
-            label = { Text("Título") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        OutlinedTextField(value = titulo, onValueChange = { titulo = it }, label = { Text("Título") }, modifier = Modifier.fillMaxWidth())
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Campo Descripción
-        OutlinedTextField(
-            value = descripcion,
-            onValueChange = { descripcion = it },
-            label = { Text("Descripción") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        OutlinedTextField(value = descripcion, onValueChange = { descripcion = it }, label = { Text("Descripción") }, modifier = Modifier.fillMaxWidth())
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Campo Fecha de vencimiento
-        OutlinedTextField(
-            value = fechaVencimiento,
-            onValueChange = { fechaVencimiento = it },
-            label = { Text("Fecha de vencimiento") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        OutlinedTextField(value = fechaVencimiento, onValueChange = { fechaVencimiento = it }, label = { Text("Fecha de vencimiento") }, modifier = Modifier.fillMaxWidth())
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Dropdown de Prioridad
-        ExposedDropdownMenuBox(
-            expanded = expanded,
-            onExpandedChange = { expanded = !expanded }
-        ) {
+        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
             OutlinedTextField(
                 value = prioridadSeleccionada,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Prioridad") },
-                modifier = Modifier
-                    .menuAnchor()
-                    .fillMaxWidth()
+                modifier = Modifier.menuAnchor().fillMaxWidth()
             )
-
-            ExposedDropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                prioridades.forEach { prioridad ->
-                    DropdownMenuItem(
-                        text = { Text(prioridad) },
-                        onClick = {
-                            prioridadSeleccionada = prioridad
-                            expanded = false
-                        }
-                    )
-                }
+            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                prioridades.forEach { p -> DropdownMenuItem(text = { Text(p) }, onClick = { prioridadSeleccionada = p; expanded = false }) }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Checkbox(checked = completada, onCheckedChange = { completada = it })
+            Text(if (completada) "Completada" else "Pendiente")
+        }
 
-        // Botón Guardar Cambios
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // REQUERIMIENTO 2: GESTIÓN REACTIVA DE ETIQUETAS EN LA EDICIÓN (Asociar/Desasociar)
+        Text("Modificar Etiquetas:", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        todosLosTags.forEach { tag ->
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+                Checkbox(
+                    checked = tagsSeleccionados.contains(tag),
+                    onCheckedChange = { checked ->
+                        tagsSeleccionados = if (checked) tagsSeleccionados + tag else tagsSeleccionados - tag
+                    }
+                )
+                Text(tag.name, modifier = Modifier.padding(start = 8.dp))
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
         Button(
             onClick = {
                 if (titulo.isNotBlank() && tareaOriginal != null) {
-                    // Modificamos el objeto original manteniendo sus datos intactos de BD
                     val tareaModificada = tareaOriginal!!.copy(
                         title = titulo,
                         description = descripcion,
@@ -133,9 +119,9 @@ fun EditarScreen(
                         completed = completada,
                         dueDate = fechaVencimiento
                     )
-
-                    viewModel.update(tareaModificada)
-                    navController.popBackStack() // Regresa a la lista
+                    // Guarda los cambios de texto y regenera las llaves en la tabla intermedia
+                    viewModel.actualizarTareaConTags(tareaModificada, tagsSeleccionados.toList())
+                    navController.popBackStack()
                 }
             },
             modifier = Modifier.fillMaxWidth(),

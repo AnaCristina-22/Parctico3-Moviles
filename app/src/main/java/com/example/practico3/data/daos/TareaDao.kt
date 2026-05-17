@@ -29,6 +29,15 @@ interface TareaDao {
     @Delete
     suspend fun delete(tarea: Tarea)
 
+    // NUEVO: Obtener una tarea con sus etiquetas por ID para la pantalla de edición
+    @Transaction
+    @Query("SELECT * FROM tareas WHERE id = :id")
+    suspend fun getTareaConTagsById(id: Int): TareaConTags
+
+    // NUEVO: Eliminar asociaciones de etiquetas viejas para poder actualizarlas
+    @Query("DELETE FROM TareaTagCrossRef WHERE tareaId = :tareaId")
+    suspend fun deleteCrossRefsPorTarea(tareaId: Int)
+
     @Query("SELECT * FROM tareas")
     fun getAll(): Flow<List<Tarea>>
 
@@ -55,4 +64,6 @@ interface TareaDao {
 
     @Delete
     suspend fun deleteTag(tag: Tag)
+
+
 }

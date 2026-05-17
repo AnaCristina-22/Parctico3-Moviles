@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.practico3.data.entities.Tag
 import com.example.practico3.data.entities.Tarea
+import com.example.practico3.data.entities.TareaConTags
 import com.example.practico3.repository.TareaRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,8 +26,8 @@ class TareaViewModel(
 
     private fun observarTareas() {
         viewModelScope.launch {
-            // Recolectamos desde la nueva función del repositorio
-            repository.getAllTareas().collect { lista ->
+            // Asegúrate de llamar a getTareasConTags() aquí:
+            repository.getTareasConTags().collect { lista ->
                 _state.value = TareaState.Success(lista)
             }
         }
@@ -109,6 +110,24 @@ class TareaViewModel(
                 repository.deleteTag(tag)
             } catch (e: Exception) {
                 _state.value = TareaState.Error(e.message ?: "Error al eliminar etiqueta")
+            }
+        }
+    }
+
+    fun actualizarTareaConTags(tarea: Tarea, tags: List<Tag>) {
+        viewModelScope.launch {
+            try { repository.actualizarTareaConTags(tarea, tags) } catch (e: Exception) { _state.value = TareaState.Error(e.message ?: "Error") }
+        }
+    }
+
+    fun getTareaConTagsById(id: Int, onResult: (TareaConTags) -> Unit) {
+        viewModelScope.launch {
+            try {
+                // Llama al repositorio para obtener la tarea junto con sus etiquetas
+                val resultado = repository.getTareaConTagsById(id)
+                onResult(resultado)
+            } catch (e: Exception) {
+                _state.value = TareaState.Error(e.message ?: "Error al obtener tarea")
             }
         }
     }
